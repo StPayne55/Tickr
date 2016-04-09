@@ -9,7 +9,7 @@
 import UIKit
 
 class StocksTableViewController: UIViewController {
-    private let stocks: [(String, Double)] = [("AAPL", +1.5), ("GOOG", +2.33), ("UTWI", +3.3)]
+    private let stocks: [(String, Double)] = [("AAPL", -1.5), ("GOOG", +2.33), ("UTWI", 0.0)]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,6 +40,31 @@ extension StocksTableViewController: UITableViewDelegate, UITableViewDataSource 
         cell.textLabel?.text = stocks[indexPath.row].0
         cell.detailTextLabel?.text = "\(stocks[indexPath.row].1)%"
         return cell
+    }
+    
+    func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
+        
+        //set the cell color to match it's stock's performance
+        switch stocks[indexPath.row].1 {
+            case let x where x < 0.0:
+                cell.backgroundColor = Constants.redColor //loss in value
+            case let x where x > 0.0:
+                cell.backgroundColor = Constants.greenColor //gain in value
+            default:
+                cell.backgroundColor = Constants.greyColor //no price action
+        }
+        
+        //setup the labels to make them more legible
+        cell.textLabel?.textColor = UIColor.whiteColor()
+        cell.textLabel?.shadowColor = UIColor.blackColor().colorWithAlphaComponent(0.25)
+        cell.textLabel?.shadowOffset = CGSize(width: 0, height: 1)
+        cell.detailTextLabel?.textColor = UIColor.whiteColor()
+        cell.detailTextLabel?.shadowColor = UIColor.blackColor().colorWithAlphaComponent(0.25)
+        cell.detailTextLabel?.shadowOffset = CGSize(width: 0, height: 1)
+    }
+    
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return 120
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
