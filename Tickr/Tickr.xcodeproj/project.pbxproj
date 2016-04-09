@@ -15,6 +15,8 @@
 		91F9A9CC1CB8521300882796 /* TickrTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F9A9CB1CB8521300882796 /* TickrTests.swift */; };
 		91F9A9D71CB8521300882796 /* TickrUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F9A9D61CB8521300882796 /* TickrUITests.swift */; };
 		91F9A9E51CB8591400882796 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F9A9E41CB8591400882796 /* Constants.swift */; };
+		91F9A9E71CB935FC00882796 /* StockManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F9A9E61CB935FC00882796 /* StockManager.swift */; };
+		91F9A9E91CB9A50500882796 /* Stock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F9A9E81CB9A50500882796 /* Stock.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,7 +50,9 @@
 		91F9A9D21CB8521300882796 /* TickrUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TickrUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		91F9A9D61CB8521300882796 /* TickrUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TickrUITests.swift; sourceTree = "<group>"; };
 		91F9A9D81CB8521300882796 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		91F9A9E41CB8591400882796 /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Constants.swift; path = Tickr/Constants.swift; sourceTree = "<group>"; };
+		91F9A9E41CB8591400882796 /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		91F9A9E61CB935FC00882796 /* StockManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StockManager.swift; sourceTree = "<group>"; };
+		91F9A9E81CB9A50500882796 /* Stock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stock.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,7 +83,6 @@
 		91F9A9AA1CB8521200882796 = {
 			isa = PBXGroup;
 			children = (
-				91F9A9E41CB8591400882796 /* Constants.swift */,
 				91F9A9B51CB8521200882796 /* Tickr */,
 				91F9A9CA1CB8521300882796 /* TickrTests */,
 				91F9A9D51CB8521300882796 /* TickrUITests */,
@@ -100,12 +103,15 @@
 		91F9A9B51CB8521200882796 /* Tickr */ = {
 			isa = PBXGroup;
 			children = (
+				91F9A9E61CB935FC00882796 /* StockManager.swift */,
+				91F9A9E41CB8591400882796 /* Constants.swift */,
 				91F9A9B61CB8521200882796 /* AppDelegate.swift */,
 				91F9A9B81CB8521200882796 /* StocksTableViewController.swift */,
 				91F9A9BA1CB8521200882796 /* Main.storyboard */,
 				91F9A9BD1CB8521200882796 /* Assets.xcassets */,
 				91F9A9BF1CB8521200882796 /* LaunchScreen.storyboard */,
 				91F9A9C21CB8521200882796 /* Info.plist */,
+				91F9A9E81CB9A50500882796 /* Stock.swift */,
 			);
 			path = Tickr;
 			sourceTree = "<group>";
@@ -259,8 +265,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				91F9A9E71CB935FC00882796 /* StockManager.swift in Sources */,
 				91F9A9B91CB8521200882796 /* StocksTableViewController.swift in Sources */,
 				91F9A9B71CB8521200882796 /* AppDelegate.swift in Sources */,
+				91F9A9E91CB9A50500882796 /* Stock.swift in Sources */,
 				91F9A9E51CB8591400882796 /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

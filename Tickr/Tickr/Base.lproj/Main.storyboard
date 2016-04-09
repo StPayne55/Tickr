@@ -4,6 +4,7 @@
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
     </dependencies>
     <scenes>
         <!--Stocks Table View Controller-->
@@ -18,9 +19,97 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="p7X-7a-llA">
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="130" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="p7X-7a-llA">
                                 <rect key="frame" x="0.0" y="70" width="600" height="530"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="tickrCell" rowHeight="130" id="1En-qZ-lca" customClass="TickrCell" customModule="Tickr" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="28" width="600" height="130"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="1En-qZ-lca" id="jlu-ic-S2h">
+                                            <rect key="frame" x="0.0" y="0.0" width="600" height="129.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Apple Inc." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" minimumFontSize="40" translatesAutoresizingMaskIntoConstraints="NO" id="bEB-bt-Sqv">
+                                                    <rect key="frame" x="8" y="8" width="584" height="113.5"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="60"/>
+                                                    <color key="textColor" white="1" alpha="0.14054581925675674" colorSpace="calibratedWhite"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="AAPL ($160.00)" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4u1-uU-qip">
+                                                    <rect key="frame" x="16" y="24.5" width="300" height="50.5"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="122" id="JJW-T4-IwE"/>
+                                                        <constraint firstAttribute="height" constant="50.5" id="fOP-PY-AJf"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="25"/>
+                                                    <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                    <nil key="highlightedColor"/>
+                                                    <variation key="default">
+                                                        <mask key="constraints">
+                                                            <exclude reference="JJW-T4-IwE"/>
+                                                        </mask>
+                                                    </variation>
+                                                </label>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="J06-Uw-gmM">
+                                                    <rect key="frame" x="324" y="40" width="268" height="50"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="50" id="hn9-a8-2po"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="40"/>
+                                                    <state key="normal" title="+0.54 (4.34%)">
+                                                        <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                    </state>
+                                                </button>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="AAPL ($160.00)" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bj3-Qr-HDs">
+                                                    <rect key="frame" x="16" y="54.5" width="300" height="50.5"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="50.5" id="a8m-r9-ED6"/>
+                                                        <constraint firstAttribute="width" constant="122" id="xeC-Gk-fAj"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="25"/>
+                                                    <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                    <nil key="highlightedColor"/>
+                                                    <variation key="default">
+                                                        <mask key="constraints">
+                                                            <exclude reference="xeC-Gk-fAj"/>
+                                                        </mask>
+                                                    </variation>
+                                                </label>
+                                            </subviews>
+                                            <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                            <constraints>
+                                                <constraint firstItem="J06-Uw-gmM" firstAttribute="leading" secondItem="4u1-uU-qip" secondAttribute="trailing" constant="8" id="9pR-S1-Hdp"/>
+                                                <constraint firstAttribute="trailing" secondItem="J06-Uw-gmM" secondAttribute="trailing" constant="8" id="A1n-vm-2LY"/>
+                                                <constraint firstItem="4u1-uU-qip" firstAttribute="centerY" secondItem="jlu-ic-S2h" secondAttribute="centerY" constant="-15" id="Bbu-PD-dsA"/>
+                                                <constraint firstAttribute="topMargin" secondItem="bEB-bt-Sqv" secondAttribute="top" id="Kf8-0I-Ywt"/>
+                                                <constraint firstItem="4u1-uU-qip" firstAttribute="leading" secondItem="jlu-ic-S2h" secondAttribute="leading" constant="16" id="MxY-ko-agI"/>
+                                                <constraint firstItem="Bj3-Qr-HDs" firstAttribute="centerY" secondItem="bEB-bt-Sqv" secondAttribute="centerY" constant="15" id="QfM-aS-cAG"/>
+                                                <constraint firstItem="4u1-uU-qip" firstAttribute="width" secondItem="jlu-ic-S2h" secondAttribute="width" multiplier="0.5" id="Wyr-gL-sr6"/>
+                                                <constraint firstAttribute="bottomMargin" secondItem="bEB-bt-Sqv" secondAttribute="bottom" id="YbG-Tp-CcR"/>
+                                                <constraint firstAttribute="topMargin" secondItem="4u1-uU-qip" secondAttribute="top" id="Z5e-gn-UNV"/>
+                                                <constraint firstAttribute="trailing" secondItem="bEB-bt-Sqv" secondAttribute="trailing" constant="8" id="eRn-7q-z4c"/>
+                                                <constraint firstItem="J06-Uw-gmM" firstAttribute="centerY" secondItem="jlu-ic-S2h" secondAttribute="centerY" id="hif-dn-j3l"/>
+                                                <constraint firstItem="Bj3-Qr-HDs" firstAttribute="width" secondItem="4u1-uU-qip" secondAttribute="width" id="lQ3-H4-voK"/>
+                                                <constraint firstAttribute="bottomMargin" secondItem="4u1-uU-qip" secondAttribute="bottom" id="lcY-Md-HWP"/>
+                                                <constraint firstItem="Bj3-Qr-HDs" firstAttribute="leading" secondItem="4u1-uU-qip" secondAttribute="leading" id="n81-bV-H0Q"/>
+                                                <constraint firstItem="bEB-bt-Sqv" firstAttribute="leading" secondItem="jlu-ic-S2h" secondAttribute="leading" constant="8" id="tbK-5k-Uyc"/>
+                                            </constraints>
+                                            <variation key="default">
+                                                <mask key="constraints">
+                                                    <exclude reference="Z5e-gn-UNV"/>
+                                                    <exclude reference="lcY-Md-HWP"/>
+                                                </mask>
+                                            </variation>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="nameLabel" destination="bEB-bt-Sqv" id="Yz1-Xy-Qa4"/>
+                                            <outlet property="percentageButton" destination="J06-Uw-gmM" id="iUy-ps-LWM"/>
+                                            <outlet property="priceLabel" destination="Bj3-Qr-HDs" id="vPh-f2-0MF"/>
+                                            <outlet property="symbolLabel" destination="4u1-uU-qip" id="Iio-WK-reJ"/>
+                                        </connections>
+                                    </tableViewCell>
+                                </prototypes>
                                 <connections>
                                     <outlet property="dataSource" destination="BYZ-38-t0r" id="kRd-p3-25c"/>
                                     <outlet property="delegate" destination="BYZ-38-t0r" id="ckj-bE-atM"/>
@@ -51,6 +140,9 @@
                             </mask>
                         </variation>
                     </view>
+                    <connections>
+                        <outlet property="tableView" destination="p7X-7a-llA" id="I2Y-Hp-Ok1"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
