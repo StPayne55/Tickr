@@ -10,8 +10,11 @@ import UIKit
 
 class StocksTableViewController: UIViewController {
     //Class Variables
-//    private var stocks: [(String, Double)] = [("AAPL", -1.5), ("GOOG", -2.0)]
-    private var stocks = [Stock]()
+    var stocks = [Stock]()
+    let stockManager = StockManager.sharedInstance
+    lazy var notificationCenter: NSNotificationCenter = {
+        return NSNotificationCenter.defaultCenter()
+    }()
     
     //Outlets
     @IBOutlet weak var tableView: UITableView!
@@ -21,23 +24,23 @@ class StocksTableViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //fake data
-        let symbol = "UWTI"
-        let price = 180.00
-        let change = 5.4
-        let changeInPrice = 10.0
-        let newStock = Stock(name: "Google", symbol: symbol, price: price, netChange: change, netChangeInPercentage: changeInPrice)
-        stocks.append(newStock)
-        let symbol2 = "GOOG"
-        let price2 = 180.00
-        let change2 = 5.4
-        let changeInPrice2 = 10.0
-        let newStock2 = Stock(name: "Google", symbol: symbol2, price: price2, netChange: change2, netChangeInPercentage: changeInPrice2)
-        stocks.append(newStock2)
+        //fake data FOR TESTING ONLY
+//        let symbol = "UWTI"
+//        let price = 180.00
+//        let change = 5.4
+//        let changeInPrice = 10.0
+//        let newStock = Stock(name: "Google", symbol: symbol, price: price, netChange: change, netChangeInPercentage: changeInPrice)
+        //stocks.append(newStock)
+//        let symbol2 = "GOOG"
+//        let price2 = 180.00
+//        let change2 = 5.4
+//        let changeInPrice2 = 10.0
+//        let newStock2 = Stock(name: "Google", symbol: symbol2, price: price2, netChange: change2, netChangeInPercentage: changeInPrice2)
+        //stocks.append(newStock2)
 
         
         //Listen for any updates from the Stock Manager
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(StocksTableViewController.stocksWereUpdated(_:)), name: Constants.kNotificationStockPricesUpdated, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(StocksTableViewController.stocksWereUpdated(_:)), name: Constants.kNotificationStockPricesUpdated, object: nil)
         self.fetchStockUpdates()
     }
 
@@ -48,7 +51,6 @@ class StocksTableViewController: UIViewController {
         This interval can be changed in Constants.swift
      */
     func fetchStockUpdates() {
-        let stockManager = StockManager.sharedInstance
         stockManager.fetchListOfSymbols(stocks)
         
         dispatch_after(
@@ -74,11 +76,12 @@ class StocksTableViewController: UIViewController {
             for stock in stocks {
                 self.stocks.append(stock)
             }
-            
         }
         
         //reload the tableView to reflect the updates
-        tableView.reloadData()
+        if tableView != nil {
+            tableView.reloadData()
+        }
     }
 }
 
@@ -91,19 +94,11 @@ extension StocksTableViewController: UITableViewDelegate, UITableViewDataSource 
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        //A UITableViewCell with style of Value 1 yields a cell with both a left and right label
-//        let cell = UITableViewCell(style: UITableViewCellStyle.Value1, reuseIdentifier: "tickrCell") as TickrCell
         let cell = tableView.dequeueReusableCellWithIdentifier("tickrCell", forIndexPath: indexPath) as! TickrCell
         cell.parentVC = self
         cell.configureCellWithStock(stocks[indexPath.row])
         
-
         return cell
-    }
-    
-    func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
-        
-        
     }
     
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
@@ -111,7 +106,7 @@ extension StocksTableViewController: UITableViewDelegate, UITableViewDataSource 
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        
+        //allow user to set price alerts
     }
 }
 
@@ -139,12 +134,12 @@ class TickrCell: UITableViewCell {
         
         //set the cell color to match it's stock's performance
         switch stock.netChange {
-        case let x where x < 0.0:
-            self.contentView.backgroundColor = Constants.tickrRed //loss in value
-        case let x where x > 0.0:
-            self.contentView.backgroundColor = Constants.tickrGreen //gain in value
-        default:
-            self.contentView.backgroundColor = Constants.tickrGray //no price action
+            case let x where x < 0.0:
+                self.contentView.backgroundColor = Constants.tickrRed //loss in value
+            case let x where x > 0.0:
+                self.contentView.backgroundColor = Constants.tickrGreen //gain in value
+            default:
+                self.contentView.backgroundColor = Constants.tickrGray //no price action
         }
         
         //setup the labels to make them more legible
@@ -156,8 +151,5 @@ class TickrCell: UITableViewCell {
         percentageButton.setTitleColor(Constants.tickrFontColor, forState: .Normal)
         percentageButton.setTitleShadowColor(Constants.tickrLabelShadowColor, forState: .Normal)
         percentageButton.titleLabel?.font = Constants.tickrSubTextFont
-        
-
-        //cell.detailTextLabel?.text = "\(stocks[indexPath.row].1)%"
     }
 }

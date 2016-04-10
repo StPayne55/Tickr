@@ -8,7 +8,7 @@
 
 import Foundation
 
-public class Stock: NSObject {
+class Stock: NSObject {
     var name: String
     var symbol: String
     var price: Double
@@ -16,7 +16,7 @@ public class Stock: NSObject {
     var netChangeInPercentage: Double
     
     //Serialization keys match the Yahoo Finance API keys
-    public struct SerializationKeys {
+    internal struct SerializationKeys {
         static let symbol = "symbol"
         static let name = "Name"
         static let changeInPercent = "ChangeinPercent"

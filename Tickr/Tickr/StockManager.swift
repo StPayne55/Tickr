@@ -16,6 +16,13 @@ import UIKit
 */
 class StockManager {
     var isMakingRequest = false
+    var session = NSURLSession.self()
+    var stockArray = [Stock]()
+    lazy var notificationCenter: NSNotificationCenter = {
+        return NSNotificationCenter.defaultCenter()
+    }()
+    
+    
     //singleton initialization
     class var sharedInstance : StockManager {
         struct Static {
@@ -25,10 +32,10 @@ class StockManager {
     }
     
     /*
-        Will fetch current prices from API, and sends
-        them to any observers via NSNotification 
+        Will fetch current prices from API, and send
+        them to any listeners via NSNotification
         
-        - parameter stocks: An array of tuples with the stock ticker in position 0, and a double in position 1
+        - parameter stocks: An array of Stock objects
      */
     func fetchListOfSymbols(stocks: [Stock]) {
         if !isMakingRequest {
@@ -43,15 +50,15 @@ class StockManager {
             tickers.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet())!
             
             //Craft URL like so: BaseURL + Quotes + EndURL
-            
             let fullURLString = (Constants.financeBaseURL + tickers + Constants.financeEndURL).stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLFragmentAllowedCharacterSet())
             let url = NSURL(string: fullURLString!)
             
-            //Create NSURL request and NSURLSession
+            //Create NSURLRequest and NSURLSession
             let request = NSURLRequest(URL: url!)
             let sessionConfig = NSURLSessionConfiguration.defaultSessionConfiguration()
-            let session = NSURLSession(configuration: sessionConfig)
+            session = NSURLSession(configuration: sessionConfig)
             
+            //setup task with completion handler
             let task : NSURLSessionDataTask = session.dataTaskWithRequest(request, completionHandler: {data, response, error -> Void in
                 
                 //Make sure there was no error
@@ -64,22 +71,12 @@ class StockManager {
                     let json = try NSJSONSerialization.JSONObjectWithData(data!,
                         options:NSJSONReadingOptions.MutableContainers) as! NSDictionary
                     
-                    //parse json for expected values
-                    ////if updating for 1 ticker, we should expect a dictionary
-                    ////if updating for multiple tickers, we should expect an array of dictionaries
-                    if let q = json["query"] as? [String : AnyObject],
-                        let r = q["results"] as? [String : AnyObject] {
-                            if let quote = r["quote"] as? NSArray {
-                                self.parseStockData(quote)
-                            } else if let quote = r["quote"] as? NSDictionary {
-                                let tempArray = NSMutableArray(object: quote)
-                                self.parseStockData(tempArray)
-                        }
+                    if let stockArrayWithData = self.parseJSON(json) {
+                        self.parseStockData(stockArrayWithData)
                     }
                 } catch {
                     print("Error: \(error)")
                 }
-                
             })
             
             //launch session task
@@ -88,12 +85,32 @@ class StockManager {
     }
     
     /*
-        This will parse an array of results from the API.
+        This will parse the raw JSON and create an array of stock dictionaries. This is needed because the API will return either an array of dictionaries for multiple stocks or JUST a dictionary for a single stock. Either way, this will make sure that our parsing method receives the same data structure.
+     */
+    func parseJSON(json: NSDictionary) -> NSArray? {
+        //parse json for expected values
+        ////if updating for 1 ticker, we should expect a dictionary
+        ////if updating for multiple tickers, we should expect an array of dictionaries
+        if let q = json["query"] as? [String : AnyObject],
+            let r = q["results"] as? [String : AnyObject] {
+            if let quote = r["quote"] as? NSArray {
+                return quote
+            } else if let quote = r["quote"] as? NSDictionary {
+                let tempArray = NSMutableArray(object: quote)
+                return tempArray
+            }
+        }
         
+        return nil
+    }
+    
+    /*
+        This will parse an array of results from the API.
+     
         - parameter stockData: An array of dictionaries returned from the API
      */
     func parseStockData(stockData: NSArray) {
-        var stockDict = [Stock]()
+        stockArray.removeAll()
         for stock in stockData {
             let keys = Stock.SerializationKeys.self
             let name = stock[keys.name] as! String
@@ -107,10 +124,10 @@ class StockManager {
             
             let newStock = Stock(name: name, symbol: symbol, price: Double(price)!, netChange: changeInPriceStringClean.doubleValue, netChangeInPercentage: changeInPercentStringClean.doubleValue)
             
-            stockDict.append(newStock)
+            stockArray.append(newStock)
         }
         
-        notififyListenersOfUpdates(stockDict)
+        notififyListenersOfUpdates(stockArray)
     }
     
     /*  
@@ -123,7 +140,7 @@ class StockManager {
         isMakingRequest = false
         dispatch_async(dispatch_get_main_queue(), {
             //Inform listeners that updates have been received and parsed
-            NSNotificationCenter.defaultCenter().postNotificationName(Constants.kNotificationStockPricesUpdated, object: nil, userInfo: [Constants.kNotificationStockPricesUpdated: data])
+            self.notificationCenter.postNotificationName(Constants.kNotificationStockPricesUpdated, object: nil, userInfo: [Constants.kNotificationStockPricesUpdated: data])
         })
     }
 }

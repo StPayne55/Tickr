@@ -7,10 +7,10 @@
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
     </dependencies>
     <scenes>
-        <!--Stocks Table View Controller-->
+        <!--stockTableViewController-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="StocksTableViewController" customModule="Tickr" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController restorationIdentifier="stockTableViewController" storyboardIdentifier="stockTableViewController" title="stockTableViewController" id="BYZ-38-t0r" customClass="StocksTableViewController" customModule="Tickr" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
@@ -36,8 +36,8 @@
                                                     <color key="textColor" white="1" alpha="0.14054581925675674" colorSpace="calibratedWhite"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="AAPL ($160.00)" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4u1-uU-qip">
-                                                    <rect key="frame" x="16" y="24.5" width="300" height="50.5"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="AAPL" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4u1-uU-qip">
+                                                    <rect key="frame" x="16" y="24" width="300" height="50.5"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="122" id="JJW-T4-IwE"/>
                                                         <constraint firstAttribute="height" constant="50.5" id="fOP-PY-AJf"/>
@@ -61,7 +61,7 @@
                                                         <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                     </state>
                                                 </button>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="AAPL ($160.00)" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bj3-Qr-HDs">
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$150.40" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bj3-Qr-HDs">
                                                     <rect key="frame" x="16" y="54.5" width="300" height="50.5"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="50.5" id="a8m-r9-ED6"/>

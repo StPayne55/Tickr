@@ -9,46 +9,14 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Tickr/StocksTableViewController.swift"
-            timestampString = "481932487.152067"
+            filePath = "Tickr/Stock.swift"
+            timestampString = "481933657.744977"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "72"
-            endingLineNumber = "72"
-            landmarkName = "stocksWereUpdated(_:)"
+            startingLineNumber = "40"
+            endingLineNumber = "40"
+            landmarkName = "init(name:symbol:price:netChange:netChangeInPercentage:)"
             landmarkType = "5">
-            <Locations>
-               <Location
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Tickr.StocksTableViewController.stocksWereUpdated (__ObjC.NSNotification) -&gt; ()"
-                  moduleName = "Tickr"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/StephenPayne/Documents/Tickr/Tickr/Tickr/StocksTableViewController.swift"
-                  timestampString = "481930684.005929"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "65"
-                  endingLineNumber = "65"
-                  offsetFromSymbolStart = "28">
-               </Location>
-               <Location
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Tickr.StocksTableViewController.stocksWereUpdated (__ObjC.NSNotification) -&gt; ()"
-                  moduleName = "Tickr"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/StephenPayne/Documents/Tickr/Tickr/Tickr/StocksTableViewController.swift"
-                  timestampString = "481930684.007448"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "65"
-                  endingLineNumber = "65"
-                  offsetFromSymbolStart = "736">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -58,12 +26,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Tickr/StockManager.swift"
-            timestampString = "481933635.382282"
+            timestampString = "481990126.351954"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "102"
-            endingLineNumber = "102"
-            landmarkName = "parseStockData(_:)"
+            startingLineNumber = "57"
+            endingLineNumber = "57"
+            landmarkName = "fetchListOfSymbols(_:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -73,13 +41,29 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Tickr/Stock.swift"
-            timestampString = "481933657.744977"
+            filePath = "Tickr/StockManager.swift"
+            timestampString = "481993514.010508"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "40"
-            endingLineNumber = "40"
-            landmarkName = "init(name:symbol:price:netChange:netChangeInPercentage:)"
+            startingLineNumber = "140"
+            endingLineNumber = "140"
+            landmarkName = "notififyListenersOfUpdates(_:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "TickrTests/TickrTestData.swift"
+            timestampString = "481994562.528574"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "28"
+            endingLineNumber = "28"
+            landmarkName = "init()"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
