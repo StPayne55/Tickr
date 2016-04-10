@@ -32,6 +32,53 @@ class StockManager {
     }
     
     /*
+        This will take a search term and try to look up stock symbols or company names based on that term
+        - parameter term: A string to use as a search query
+     */
+    class func fetchStocksFromSearchTerm(term term: String, completion:(stockInfoArray: [StockSearchResult]) -> ()) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+            
+            //sanitize string
+            let query = term.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLFragmentAllowedCharacterSet())
+            let url = NSURL(string: "\(Constants.searchURL)\(query!)")
+            
+            //Create NSURLRequest and NSURLSession
+            let request = NSURLRequest(URL: url!)
+            let sessionConfig = NSURLSessionConfiguration.defaultSessionConfiguration()
+            let session = NSURLSession(configuration: sessionConfig)
+            
+            //setup task with completion handler
+            let task : NSURLSessionDataTask = session.dataTaskWithRequest(request, completionHandler: {data, response, error -> Void in
+                
+                //Make sure there was no error
+                guard error == nil else {
+                    print(error!.localizedDescription)
+                    return
+                }
+                
+                do {
+                    let json = try NSJSONSerialization.JSONObjectWithData(data!,
+                        options:NSJSONReadingOptions.MutableContainers) as! NSArray
+                    var stockInfoArray = [StockSearchResult]()
+                    for result in json {
+                        let company = result["company"] as! String
+                        let symbol = result["symbol"] as! String
+                        let newResult = StockSearchResult(symbol: symbol, name: company)
+                        stockInfoArray.append(newResult)
+                    }
+                   completion(stockInfoArray: stockInfoArray)
+                } catch {
+                    print("Error: \(error)")
+                }
+            })
+            
+            //launch session task
+            task.resume()
+        }
+    }
+
+    
+    /*
         Will fetch current prices from API, and send
         them to any listeners via NSNotification
         
@@ -112,15 +159,39 @@ class StockManager {
     func parseStockData(stockData: NSArray) {
         stockArray.removeAll()
         for stock in stockData {
-            let keys = Stock.SerializationKeys.self
-            let name = stock[keys.name] as! String
-            let symbol = stock[keys.symbol] as! String
-            let price = stock[keys.price] as! String
-            let changeInPercentString = stock[keys.changeInPercent] as! String
-            let changeInPercentStringClean: NSString = (changeInPercentString as NSString).substringToIndex(changeInPercentString.characters.count-1)
+            var name: String = ""
+            var symbol: String = ""
+            var price: String = "0"
+            var changeInPercentString: String = "0"
+            var changeInPriceString: String = "0"
+            var changeInPercentStringClean: NSString = "0"
+            var changeInPriceStringClean: NSString = "0"
             
-            let changeInPriceString = stock[keys.changeInPrice] as! String
-            let changeInPriceStringClean: NSString = (changeInPriceString as NSString).substringToIndex(changeInPriceString.characters.count-1)
+            let keys = Stock.SerializationKeys.self
+            if let n = stock[keys.name] as? String {
+                name = n
+            }
+            
+            if let s = stock[keys.symbol] as? String {
+                symbol = s
+            }
+            
+            if let p = stock[keys.price] as? String {
+                price = p
+            }
+            
+            if let cPercent = stock[keys.changeInPercent] as? String {
+                changeInPercentString = cPercent
+            
+                changeInPercentStringClean = (changeInPercentString as NSString).substringToIndex(changeInPercentString.characters.count-1)
+            }
+            
+            if let cPrice = stock[keys.changeInPrice] as? String {
+                changeInPriceString = cPrice
+            
+                changeInPriceStringClean = (changeInPriceString as NSString).substringToIndex(changeInPriceString.characters.count-1)
+            }
+            
             
             let newStock = Stock(name: name, symbol: symbol, price: Double(price)!, netChange: changeInPriceStringClean.doubleValue, netChangeInPercentage: changeInPercentStringClean.doubleValue)
             

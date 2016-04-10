@@ -15,6 +15,10 @@ class Stock: NSObject {
     var netChange: Double
     var netChangeInPercentage: Double
     
+    //price alerts
+    var lowPriceAlert: Double?
+    var highPriceAlert: Double?
+    
     //Serialization keys match the Yahoo Finance API keys
     internal struct SerializationKeys {
         static let symbol = "symbol"
@@ -39,4 +43,10 @@ class Stock: NSObject {
         self.netChange = netChange
         self.netChangeInPercentage = netChangeInPercentage
     }
+}
+
+//For Search Results
+struct StockSearchResult {
+    var symbol: String?
+    var name: String?
 }

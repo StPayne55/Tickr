@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		910E33F41CBAFF9700700945 /* SearchTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 910E33F31CBAFF9700700945 /* SearchTableViewController.swift */; };
+		910E33F61CBB120B00700945 /* WatchListManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 910E33F51CBB120B00700945 /* WatchListManager.swift */; };
 		91F9A9B71CB8521200882796 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F9A9B61CB8521200882796 /* AppDelegate.swift */; };
 		91F9A9B91CB8521200882796 /* StocksTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F9A9B81CB8521200882796 /* StocksTableViewController.swift */; };
 		91F9A9BC1CB8521200882796 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 91F9A9BA1CB8521200882796 /* Main.storyboard */; };
@@ -41,6 +43,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		910E33F31CBAFF9700700945 /* SearchTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchTableViewController.swift; sourceTree = "<group>"; };
+		910E33F51CBB120B00700945 /* WatchListManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchListManager.swift; sourceTree = "<group>"; };
 		91F9A9B31CB8521200882796 /* Tickr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tickr.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		91F9A9B61CB8521200882796 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		91F9A9B81CB8521200882796 /* StocksTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StocksTableViewController.swift; sourceTree = "<group>"; };
@@ -120,6 +124,8 @@
 				91F9A9BF1CB8521200882796 /* LaunchScreen.storyboard */,
 				91F9A9C21CB8521200882796 /* Info.plist */,
 				91F9A9E81CB9A50500882796 /* Stock.swift */,
+				910E33F31CBAFF9700700945 /* SearchTableViewController.swift */,
+				910E33F51CBB120B00700945 /* WatchListManager.swift */,
 			);
 			path = Tickr;
 			sourceTree = "<group>";
@@ -289,10 +295,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				91F9A9E71CB935FC00882796 /* StockManager.swift in Sources */,
+				910E33F41CBAFF9700700945 /* SearchTableViewController.swift in Sources */,
 				91F9A9B91CB8521200882796 /* StocksTableViewController.swift in Sources */,
 				91F9A9B71CB8521200882796 /* AppDelegate.swift in Sources */,
 				91F9A9E91CB9A50500882796 /* Stock.swift in Sources */,
 				91F9A9E51CB8591400882796 /* Constants.swift in Sources */,
+				910E33F61CBB120B00700945 /* WatchListManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -526,6 +534,7 @@
 				91F9A9DD1CB8521300882796 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		91F9A9DE1CB8521300882796 /* Build configuration list for PBXNativeTarget "TickrTests" */ = {
 			isa = XCConfigurationList;
@@ -534,6 +543,7 @@
 				91F9A9E01CB8521300882796 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		91F9A9E11CB8521300882796 /* Build configuration list for PBXNativeTarget "TickrUITests" */ = {
 			isa = XCConfigurationList;
@@ -542,6 +552,7 @@
 				91F9A9E31CB8521300882796 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

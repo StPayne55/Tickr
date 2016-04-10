@@ -10,40 +10,32 @@ import UIKit
 
 class StocksTableViewController: UIViewController {
     //Class Variables
-    var stocks = [Stock]()
     let stockManager = StockManager.sharedInstance
+    let watchList = WatchListManager.sharedInstance
+    
     lazy var notificationCenter: NSNotificationCenter = {
         return NSNotificationCenter.defaultCenter()
     }()
     
     //Outlets
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var searchBar: UISearchBar!
     
     
     //MARK: - View Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //fake data FOR TESTING ONLY
-//        let symbol = "UWTI"
-//        let price = 180.00
-//        let change = 5.4
-//        let changeInPrice = 10.0
-//        let newStock = Stock(name: "Google", symbol: symbol, price: price, netChange: change, netChangeInPercentage: changeInPrice)
-        //stocks.append(newStock)
-//        let symbol2 = "GOOG"
-//        let price2 = 180.00
-//        let change2 = 5.4
-//        let changeInPrice2 = 10.0
-//        let newStock2 = Stock(name: "Google", symbol: symbol2, price: price2, netChange: change2, netChangeInPercentage: changeInPrice2)
-        //stocks.append(newStock2)
+        searchBar.delegate = self
 
-        
         //Listen for any updates from the Stock Manager
         notificationCenter.addObserver(self, selector: #selector(StocksTableViewController.stocksWereUpdated(_:)), name: Constants.kNotificationStockPricesUpdated, object: nil)
-        self.fetchStockUpdates()
     }
 
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        self.fetchStockUpdates()
+    }
 
     //MARK: - Stock Updates
     /*
@@ -51,7 +43,7 @@ class StocksTableViewController: UIViewController {
         This interval can be changed in Constants.swift
      */
     func fetchStockUpdates() {
-        stockManager.fetchListOfSymbols(stocks)
+        stockManager.fetchListOfSymbols(watchList.stocks)
         
         dispatch_after(
             dispatch_time(
@@ -72,9 +64,9 @@ class StocksTableViewController: UIViewController {
      */
     func stocksWereUpdated(notification: NSNotification) {
         if let stocks = notification.userInfo?[Constants.kNotificationStockPricesUpdated] as? [Stock] {
-            self.stocks.removeAll()
+            watchList.stocks.removeAll()
             for stock in stocks {
-                self.stocks.append(stock)
+                watchList.stocks.append(stock)
             }
         }
         
@@ -90,13 +82,13 @@ class StocksTableViewController: UIViewController {
 extension StocksTableViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return stocks.count
+        return watchList.stocks.count
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("tickrCell", forIndexPath: indexPath) as! TickrCell
         cell.parentVC = self
-        cell.configureCellWithStock(stocks[indexPath.row])
+        cell.configureCellWithStock(watchList.stocks[indexPath.row])
         
         return cell
     }
@@ -113,13 +105,15 @@ extension StocksTableViewController: UITableViewDelegate, UITableViewDataSource 
 
 //A simple UITableView cell to display stock data
 class TickrCell: UITableViewCell {
+    //instance variables
+    var parentVC: StocksTableViewController!
+    
     //MARK: - Cell Outlets
     @IBOutlet weak var symbolLabel: UILabel!
     @IBOutlet weak var percentageButton: UIButton!
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var priceLabel: UILabel!
     
-    var parentVC: StocksTableViewController!
     
     func configureCellWithStock(stock: Stock) {
         //set the labels' text property to the stock ticker and the percentage gained/lost
@@ -152,4 +146,15 @@ class TickrCell: UITableViewCell {
         percentageButton.setTitleShadowColor(Constants.tickrLabelShadowColor, forState: .Normal)
         percentageButton.titleLabel?.font = Constants.tickrSubTextFont
     }
+}
+
+
+//MARK: - SearchBar Delegate Methods
+extension StocksTableViewController: UISearchBarDelegate {
+    
+    func searchBarShouldBeginEditing(searchBar: UISearchBar) -> Bool {
+        self.performSegueWithIdentifier("searchSegue", sender: nil)
+        return true
+    }
+    
 }

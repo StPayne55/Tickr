@@ -31,4 +31,5 @@ class Constants {
     static let financeBaseURL = "https://query.yahooapis.com/v1/public/yql?q=select * from yahoo.finance.quotes where symbol IN "
     static let financeBaseURLForSingleQuery = "https://query.yahooapis.com/v1/public/yql?q=select * from yahoo.finance.quotes where symbol=*"
     static let financeEndURL = "&format=json&env=http://datatables.org/alltables.env"
+    static let searchURL = "https://chstocksearch.herokuapp.com/api/"
 }
