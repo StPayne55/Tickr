@@ -21,9 +21,20 @@ class SearchTableViewController: UIViewController {
         super.viewDidLoad()
         
         searchBar.delegate = self
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        
         searchBar.becomeFirstResponder()
     }
 
+    /*
+        Will take a search term and query a separate API for possible stocks
+        that match that search term.
+     
+        - parameter searchText: The user input used for finding stocks
+    */
     func searchYahooFinanceWithString(searchText: String) {
         
         StockManager.fetchStocksFromSearchTerm(term: searchText) { (stockInfoArray) -> () in
@@ -35,6 +46,7 @@ class SearchTableViewController: UIViewController {
     }
 }
 
+//MARK: - TableView Delegate and Datasource
 extension SearchTableViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -43,7 +55,6 @@ extension SearchTableViewController: UITableViewDelegate, UITableViewDataSource 
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("searchResultCell") as! SearchResultCell
-        
         cell.parentVC = self
         cell.configureCellWithSearchResult(searchResults[indexPath.row])
         
@@ -56,11 +67,13 @@ extension SearchTableViewController: UITableViewDelegate, UITableViewDataSource 
     }
 }
 
+
+//MARK: - SearchBar Delegate
 extension SearchTableViewController: UISearchBarDelegate {
     func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
         
+        //If there is user input, suggest companies that match their query
         let length = searchText.characters.count
-        
         if length > 0 {
             searchYahooFinanceWithString(searchText)
         } else {
@@ -81,6 +94,7 @@ extension SearchTableViewController: UISearchBarDelegate {
         return true
     }
     
+    //dismiss search VC when cancel button is selected
     func searchBarCancelButtonClicked(searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
         searchBar.text = ""
@@ -89,7 +103,7 @@ extension SearchTableViewController: UISearchBarDelegate {
 }
 
 
-//A simple UITableView cell to display search results
+//MARK: - SearchResultCell Class - A simple UITableViewCell for displaying search results
 class SearchResultCell: UITableViewCell {
     //Instance Variables
     var parentVC: SearchTableViewController!
@@ -100,14 +114,31 @@ class SearchResultCell: UITableViewCell {
     
     //Actions
     @IBAction func addButtonWasPressed(sender: UIButton?) {
-        let newStock = Stock(name: nameLabel.text!, symbol: symbolLabel.text!, price: 0.0, netChange: 0.0, netChangeInPercentage: 0.0)
-        WatchListManager.sharedInstance.stocks.append(newStock)
-        parentVC.dismissViewControllerAnimated(false, completion: nil)
+        //create a new stock instance
+        let newStock = Stock(
+            name: nameLabel.text!,
+            symbol: symbolLabel.text!,
+            price: 0.0,
+            netChange: 0.0,
+            netChangeInPercentage: 0.0
+        )
+        
+        //Try to add this stock to the watchlist. If it already exists,
+        //then it won't be added again.
+        WatchListManager.sharedInstance.addStockToWatchList(newStock, completion: { (stockWasAdded: Bool) in
+            //If the stock was added to the watchlist, let's add it to the local array also 
+            //to prevent lag while waiting on an update from the StockManager
+            if stockWasAdded {
+                if let presentingVC = self.parentVC.presentingViewController as? StocksTableViewController {
+                    presentingVC.stocks.append(newStock)
+                }
+            }
+            self.parentVC.dismissViewControllerAnimated(false, completion: nil)
+        })
     }
     
     func configureCellWithSearchResult(term: StockSearchResult) {
         symbolLabel.text = term.symbol
         nameLabel.text = term.name
     }
-    
 }

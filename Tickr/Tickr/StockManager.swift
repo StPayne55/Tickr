@@ -16,6 +16,7 @@ import UIKit
 */
 class StockManager {
     var isMakingRequest = false
+    var shouldCancelUpdate = false
     var session = NSURLSession.self()
     var stockArray = [Stock]()
     lazy var notificationCenter: NSNotificationCenter = {
@@ -86,6 +87,9 @@ class StockManager {
      */
     func fetchListOfSymbols(stocks: [Stock]) {
         if !isMakingRequest {
+            //Set request flag so that multiple requests aren't being made at once
+            isMakingRequest = true
+            
             //Create quote portion of the URL
             //Example: ("AAPL","UWTI","TSLA")
             var tickers = "(";
@@ -120,8 +124,11 @@ class StockManager {
                     
                     if let stockArrayWithData = self.parseJSON(json) {
                         self.parseStockData(stockArrayWithData)
+                    }else {
+                        self.isMakingRequest = false
                     }
                 } catch {
+                    self.isMakingRequest = false
                     print("Error: \(error)")
                 }
             })
@@ -157,7 +164,7 @@ class StockManager {
         - parameter stockData: An array of dictionaries returned from the API
      */
     func parseStockData(stockData: NSArray) {
-        stockArray.removeAll()
+        stockArray.removeAll(keepCapacity: false)
         for stock in stockData {
             var name: String = ""
             var symbol: String = ""
@@ -194,8 +201,9 @@ class StockManager {
             
             
             let newStock = Stock(name: name, symbol: symbol, price: Double(price)!, netChange: changeInPriceStringClean.doubleValue, netChangeInPercentage: changeInPercentStringClean.doubleValue)
-            
-            stockArray.append(newStock)
+            if !stockArray.contains(newStock){
+                stockArray.append(newStock)
+            }
         }
         
         notififyListenersOfUpdates(stockArray)
@@ -211,7 +219,9 @@ class StockManager {
         isMakingRequest = false
         dispatch_async(dispatch_get_main_queue(), {
             //Inform listeners that updates have been received and parsed
+            if !self.shouldCancelUpdate {
             self.notificationCenter.postNotificationName(Constants.kNotificationStockPricesUpdated, object: nil, userInfo: [Constants.kNotificationStockPricesUpdated: data])
+            }
         })
     }
 }

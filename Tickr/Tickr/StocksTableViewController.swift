@@ -10,9 +10,7 @@ import UIKit
 
 class StocksTableViewController: UIViewController {
     //Class Variables
-    let stockManager = StockManager.sharedInstance
-    let watchList = WatchListManager.sharedInstance
-    
+    var stocks = [Stock]()
     lazy var notificationCenter: NSNotificationCenter = {
         return NSNotificationCenter.defaultCenter()
     }()
@@ -27,24 +25,40 @@ class StocksTableViewController: UIViewController {
         super.viewDidLoad()
         
         searchBar.delegate = self
-
-        //Listen for any updates from the Stock Manager
-        notificationCenter.addObserver(self, selector: #selector(StocksTableViewController.stocksWereUpdated(_:)), name: Constants.kNotificationStockPricesUpdated, object: nil)
+        self.fetchStockUpdates()
     }
 
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
-        self.fetchStockUpdates()
+        //Listen for any updates from the Stock Manager
+        notificationCenter.addObserver(self, selector: #selector(StocksTableViewController.stocksWereUpdated(_:)), name: Constants.kNotificationStockPricesUpdated, object: nil)
+        
+        //Reload tableView to reflect any changes in the search view
+        tableView.reloadData()
+    }
+    
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        //No reason to update the stock data when the stock view isn't visible
+        notificationCenter.removeObserver(self)
     }
 
+    
     //MARK: - Stock Updates
     /*
         This will fetch current stock prices on a set interval.
-        This interval can be changed in Constants.swift
+        This interval can be changed in Constants.swift.
+     
+        Stocks are added to the WatchList stock array. StockManager then
+        makes a query on the stocks in that array. Those stock updates 
+        are parsed, and then sent back here using a NSNotification. 
+        From there, they're added to the local array and displayed.
      */
     func fetchStockUpdates() {
-        stockManager.fetchListOfSymbols(watchList.stocks)
+        StockManager.sharedInstance.fetchListOfSymbols(WatchListManager.sharedInstance.stocks)
         
+        //This will call fetchStockUpdates only after the update interval has elapsed
         dispatch_after(
             dispatch_time(
                 DISPATCH_TIME_NOW,
@@ -63,17 +77,16 @@ class StocksTableViewController: UIViewController {
         - parameter notification: a notification containing a userInfo dictionary that contains data on the stocks that were updated
      */
     func stocksWereUpdated(notification: NSNotification) {
+        //parse the notification userInfo dictionary and update the local array
         if let stocks = notification.userInfo?[Constants.kNotificationStockPricesUpdated] as? [Stock] {
-            watchList.stocks.removeAll()
+            self.stocks.removeAll()
             for stock in stocks {
-                watchList.stocks.append(stock)
+                self.stocks.append(stock)
             }
         }
         
         //reload the tableView to reflect the updates
-        if tableView != nil {
-            tableView.reloadData()
-        }
+        tableView.reloadData()
     }
 }
 
@@ -82,31 +95,77 @@ class StocksTableViewController: UIViewController {
 extension StocksTableViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return watchList.stocks.count
+        return stocks.count
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("tickrCell", forIndexPath: indexPath) as! TickrCell
-        cell.parentVC = self
-        cell.configureCellWithStock(watchList.stocks[indexPath.row])
+        cell.configureCellWithStock(self.stocks[indexPath.row])
         
         return cell
     }
     
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        return 120
+        let tableHeight = tableView.frame.height
+        let stockCount = CGFloat(self.stocks.count)
+        
+        //Cells should be scaled so that there is no blank space in the tableView.
+        //100 is the minimum cell height. Cells will never be smaller than that.
+        let rowHeight = tableHeight / stockCount
+        if stockCount > 0 && rowHeight > 80 {
+            return rowHeight
+        }
+        return 80
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         //allow user to set price alerts
     }
+    
+    
+    func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
+        //Will display price alert options
+        let moreRowAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "Price\nAlerts", handler:{action, indexpath in
+            
+        });
+        moreRowAction.backgroundColor = Constants.tickrBlue
+        
+        //Will delete a stock from the watch list and from the local array
+        let deleteRowAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "Delete", handler:{action, indexpath in
+            //Remove stock watchlist and local array if successful
+            let stockToDelete = self.stocks[indexPath.row]
+            WatchListManager.sharedInstance.removeStockFromWatchList(stockToDelete, completion: { (didDeleteStock) in
+                
+                //If stock was removed from watchlist, remove it from local array also
+                if didDeleteStock {
+                    self.stocks.removeAtIndex(indexPath.row)
+                    
+                    //Delete the row corresponding to that stock
+                    tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+                    StockManager.sharedInstance.shouldCancelUpdate = false
+                }
+            })
+        });
+        
+        deleteRowAction.backgroundColor = Constants.tickrButtonRed
+        return [deleteRowAction, moreRowAction];
+    }
 }
 
 
-//A simple UITableView cell to display stock data
+//MARK: - SearchBar Delegate Methods
+extension StocksTableViewController: UISearchBarDelegate {
+    //When the searchbar is selected, we want to segue to the SearchTableViewController
+    func searchBarShouldBeginEditing(searchBar: UISearchBar) -> Bool {
+        self.performSegueWithIdentifier("searchSegue", sender: nil)
+        return true
+    }
+    
+}
+
+
+//MARK: - TickrCell Class - A simple UITableView cell for displaying stock data
 class TickrCell: UITableViewCell {
-    //instance variables
-    var parentVC: StocksTableViewController!
     
     //MARK: - Cell Outlets
     @IBOutlet weak var symbolLabel: UILabel!
@@ -114,9 +173,13 @@ class TickrCell: UITableViewCell {
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var priceLabel: UILabel!
     
-    
+    /*
+        Will configure a TickrCell and populate outlets with stock data
+     
+        - parameter stock: A Stock object this cell is to display
+    */
     func configureCellWithStock(stock: Stock) {
-        //set the labels' text property to the stock ticker and the percentage gained/lost
+        //set price, symbol, and name label as well as the percentage button
         let formatter = NSNumberFormatter()
         formatter.numberStyle = .CurrencyStyle
         let price = formatter.stringFromNumber(stock.price)
@@ -124,7 +187,7 @@ class TickrCell: UITableViewCell {
         priceLabel.text = price
         symbolLabel.text = "\(stock.symbol)"
         nameLabel.text = "\(stock.name)"
-        percentageButton.setTitle("\(change!) (\(stock.netChangeInPercentage)%)", forState: .Normal)
+        percentageButton.setTitle("\(change!) (\(stock.netChangeInPercentage.roundToPlaces(2))%)", forState: .Normal)
         
         //set the cell color to match it's stock's performance
         switch stock.netChange {
@@ -142,19 +205,28 @@ class TickrCell: UITableViewCell {
         symbolLabel.shadowColor = Constants.tickrLabelShadowColor
         symbolLabel.shadowOffset = Constants.tickrLabelShadowOffset
         
+        //setup the percentage button
         percentageButton.setTitleColor(Constants.tickrFontColor, forState: .Normal)
         percentageButton.setTitleShadowColor(Constants.tickrLabelShadowColor, forState: .Normal)
         percentageButton.titleLabel?.font = Constants.tickrSubTextFont
     }
-}
-
-
-//MARK: - SearchBar Delegate Methods
-extension StocksTableViewController: UISearchBarDelegate {
     
-    func searchBarShouldBeginEditing(searchBar: UISearchBar) -> Bool {
-        self.performSegueWithIdentifier("searchSegue", sender: nil)
-        return true
+    
+    //This is used to temporarily stop updates while a cell is swiped open.
+    //Otherwise, the cell will snap back when the tableView is updated.
+    override func willTransitionToState(state: UITableViewCellStateMask) {
+        switch(state) {
+        //Cell is swiped open
+        case UITableViewCellStateMask.ShowingDeleteConfirmationMask:
+            StockManager.sharedInstance.shouldCancelUpdate = true
+            break
+        //Cell is closed
+        case UITableViewCellStateMask.DefaultMask:
+            StockManager.sharedInstance.shouldCancelUpdate = false
+            break
+        default:
+            //Default case
+            print(state)
+        }
     }
-    
 }
