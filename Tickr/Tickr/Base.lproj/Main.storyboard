@@ -76,33 +76,57 @@
                                                         </mask>
                                                     </variation>
                                                 </label>
+                                                <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="High Price Alert:" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5b7-6o-i7H">
+                                                    <rect key="frame" x="264" y="29" width="328" height="16"/>
+                                                    <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="14"/>
+                                                    <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Low Price Alert:" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FF8-cv-y4K">
+                                                    <rect key="frame" x="264" y="85" width="328" height="17"/>
+                                                    <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="14"/>
+                                                    <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
                                             </subviews>
                                             <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                             <constraints>
                                                 <constraint firstItem="J06-Uw-gmM" firstAttribute="leading" secondItem="4u1-uU-qip" secondAttribute="trailing" constant="8" id="9pR-S1-Hdp"/>
                                                 <constraint firstAttribute="trailing" secondItem="J06-Uw-gmM" secondAttribute="trailing" constant="8" id="A1n-vm-2LY"/>
                                                 <constraint firstItem="4u1-uU-qip" firstAttribute="centerY" secondItem="jlu-ic-S2h" secondAttribute="centerY" constant="-15" id="Bbu-PD-dsA"/>
+                                                <constraint firstItem="FF8-cv-y4K" firstAttribute="width" secondItem="J06-Uw-gmM" secondAttribute="width" id="DQw-sH-dtt"/>
+                                                <constraint firstItem="FF8-cv-y4K" firstAttribute="centerX" secondItem="5b7-6o-i7H" secondAttribute="centerX" id="JK7-3R-6sX"/>
                                                 <constraint firstAttribute="topMargin" secondItem="bEB-bt-Sqv" secondAttribute="top" id="Kf8-0I-Ywt"/>
                                                 <constraint firstItem="4u1-uU-qip" firstAttribute="leading" secondItem="jlu-ic-S2h" secondAttribute="leading" constant="16" id="MxY-ko-agI"/>
                                                 <constraint firstItem="Bj3-Qr-HDs" firstAttribute="centerY" secondItem="bEB-bt-Sqv" secondAttribute="centerY" constant="15" id="QfM-aS-cAG"/>
+                                                <constraint firstAttribute="topMargin" secondItem="5b7-6o-i7H" secondAttribute="top" id="WPs-Ch-lkg"/>
+                                                <constraint firstItem="FF8-cv-y4K" firstAttribute="top" secondItem="J06-Uw-gmM" secondAttribute="bottom" constant="-5" id="Wb8-ct-zQ7"/>
                                                 <constraint firstItem="4u1-uU-qip" firstAttribute="width" secondItem="jlu-ic-S2h" secondAttribute="width" multiplier="0.4" id="Wyr-gL-sr6"/>
                                                 <constraint firstAttribute="bottomMargin" secondItem="bEB-bt-Sqv" secondAttribute="bottom" id="YbG-Tp-CcR"/>
                                                 <constraint firstAttribute="topMargin" secondItem="4u1-uU-qip" secondAttribute="top" id="Z5e-gn-UNV"/>
+                                                <constraint firstItem="J06-Uw-gmM" firstAttribute="top" secondItem="5b7-6o-i7H" secondAttribute="bottom" constant="-5" id="dEk-0U-6s8"/>
                                                 <constraint firstAttribute="trailing" secondItem="bEB-bt-Sqv" secondAttribute="trailing" constant="8" id="eRn-7q-z4c"/>
+                                                <constraint firstItem="FF8-cv-y4K" firstAttribute="top" secondItem="bEB-bt-Sqv" secondAttribute="bottom" constant="-23.5" id="gpX-js-TPM"/>
                                                 <constraint firstItem="J06-Uw-gmM" firstAttribute="centerY" secondItem="jlu-ic-S2h" secondAttribute="centerY" id="hif-dn-j3l"/>
                                                 <constraint firstItem="Bj3-Qr-HDs" firstAttribute="width" secondItem="4u1-uU-qip" secondAttribute="width" id="lQ3-H4-voK"/>
                                                 <constraint firstAttribute="bottomMargin" secondItem="4u1-uU-qip" secondAttribute="bottom" id="lcY-Md-HWP"/>
                                                 <constraint firstItem="Bj3-Qr-HDs" firstAttribute="leading" secondItem="4u1-uU-qip" secondAttribute="leading" id="n81-bV-H0Q"/>
+                                                <constraint firstItem="5b7-6o-i7H" firstAttribute="width" secondItem="J06-Uw-gmM" secondAttribute="width" id="rIA-wj-bRY"/>
                                                 <constraint firstItem="bEB-bt-Sqv" firstAttribute="leading" secondItem="jlu-ic-S2h" secondAttribute="leading" constant="8" id="tbK-5k-Uyc"/>
+                                                <constraint firstItem="5b7-6o-i7H" firstAttribute="trailing" secondItem="J06-Uw-gmM" secondAttribute="trailing" id="zhf-NY-aIO"/>
                                             </constraints>
                                             <variation key="default">
                                                 <mask key="constraints">
                                                     <exclude reference="Z5e-gn-UNV"/>
                                                     <exclude reference="lcY-Md-HWP"/>
+                                                    <exclude reference="WPs-Ch-lkg"/>
+                                                    <exclude reference="gpX-js-TPM"/>
                                                 </mask>
                                             </variation>
                                         </tableViewCellContentView>
                                         <connections>
+                                            <outlet property="highPriceAlertLabel" destination="5b7-6o-i7H" id="LF5-5P-Gaj"/>
+                                            <outlet property="lowPriceAlertLabel" destination="FF8-cv-y4K" id="Ych-6a-HJK"/>
                                             <outlet property="nameLabel" destination="bEB-bt-Sqv" id="Yz1-Xy-Qa4"/>
                                             <outlet property="percentageButton" destination="J06-Uw-gmM" id="iUy-ps-LWM"/>
                                             <outlet property="priceLabel" destination="Bj3-Qr-HDs" id="vPh-f2-0MF"/>
@@ -205,7 +229,7 @@
                                         <rect key="frame" x="0.0" y="28" width="600" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="zBu-K0-mtz" id="dB4-iZ-nPG">
-                                            <rect key="frame" x="0.0" y="0.0" width="600" height="49.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="600" height="50"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="UWTI" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mws-PP-dwU">

@@ -23,7 +23,6 @@ class StockManager {
         return NSNotificationCenter.defaultCenter()
     }()
     
-    
     //singleton initialization
     class var sharedInstance : StockManager {
         struct Static {
@@ -31,6 +30,7 @@ class StockManager {
         }
         return Static.instance
     }
+    
     
     /*
         This will take a search term and try to look up stock symbols or company names based on that term
@@ -94,7 +94,7 @@ class StockManager {
             //Example: ("AAPL","UWTI","TSLA")
             var tickers = "(";
             for stock in stocks {
-                tickers = tickers+"\""+stock.symbol+"\","
+                tickers = tickers+"\""+stock.symbol.lowercaseString+"\","
             }
             tickers = tickers.substringToIndex(tickers.endIndex.predecessor())
             tickers = tickers + ")"
@@ -173,54 +173,65 @@ class StockManager {
             var changeInPriceString: String = "0"
             var changeInPercentStringClean: NSString = "0"
             var changeInPriceStringClean: NSString = "0"
-            
             let keys = Stock.SerializationKeys.self
+            
+            //Stock Company Name
             if let n = stock[keys.name] as? String {
                 name = n
             }
             
+            //Stock Symbol
             if let s = stock[keys.symbol] as? String {
-                symbol = s
+                symbol = s.uppercaseString
             }
             
+            //Stock Price
             if let p = stock[keys.price] as? String {
                 price = p
             }
             
+            //Stock Increase or Decrease as Percentage
             if let cPercent = stock[keys.changeInPercent] as? String {
                 changeInPercentString = cPercent
             
                 changeInPercentStringClean = (changeInPercentString as NSString).substringToIndex(changeInPercentString.characters.count-1)
             }
             
+            //Stock Increase or Decrease as Price
             if let cPrice = stock[keys.changeInPrice] as? String {
                 changeInPriceString = cPrice
             
                 changeInPriceStringClean = (changeInPriceString as NSString).substringToIndex(changeInPriceString.characters.count-1)
             }
             
-            
+            //Create new stock object with parsed data
             let newStock = Stock(name: name, symbol: symbol, price: Double(price)!, netChange: changeInPriceStringClean.doubleValue, netChangeInPercentage: changeInPercentStringClean.doubleValue)
+            
+            //If stock isn't already in the stock array, then add it
             if !stockArray.contains(newStock){
                 stockArray.append(newStock)
             }
         }
         
-        notififyListenersOfUpdates(stockArray)
+        //Update the data in our WatchList
+        WatchListManager.sharedInstance.updateStockArrayWithNewData(stockArray)
+        
+        //Send out update notification
+        notififyListenersOfUpdates()
     }
     
     /*  
-        This will post a notification the contains a userInfo dictionary that has an array with stock updates
-     
-        - parameter data: An array of stock ticker symbols with their respective values
+        Will post a notification that lets any listening View Controllers
+        know that updates have been received.
      */
-    func notififyListenersOfUpdates(data: [Stock]) {
+    func notififyListenersOfUpdates() {
         //mark request as finished
         isMakingRequest = false
+        
         dispatch_async(dispatch_get_main_queue(), {
             //Inform listeners that updates have been received and parsed
             if !self.shouldCancelUpdate {
-            self.notificationCenter.postNotificationName(Constants.kNotificationStockPricesUpdated, object: nil, userInfo: [Constants.kNotificationStockPricesUpdated: data])
+                self.notificationCenter.postNotificationName(Constants.kNotificationStockPricesUpdated, object: nil, userInfo: nil)
             }
         })
     }

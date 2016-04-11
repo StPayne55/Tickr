@@ -37,8 +37,10 @@ class SearchTableViewController: UIViewController {
     */
     func searchYahooFinanceWithString(searchText: String) {
         
+        //Search for stocks using the user-entered text
         StockManager.fetchStocksFromSearchTerm(term: searchText) { (stockInfoArray) -> () in
             dispatch_async(dispatch_get_main_queue(), {
+                //Update the tableView with the search results
                 self.searchResults = stockInfoArray
                 self.tableView.reloadData()
             })
@@ -70,8 +72,8 @@ extension SearchTableViewController: UITableViewDelegate, UITableViewDataSource 
 
 //MARK: - SearchBar Delegate
 extension SearchTableViewController: UISearchBarDelegate {
+    
     func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
-        
         //If there is user input, suggest companies that match their query
         let length = searchText.characters.count
         if length > 0 {
@@ -103,9 +105,10 @@ extension SearchTableViewController: UISearchBarDelegate {
 }
 
 
-//MARK: - SearchResultCell Class - A simple UITableViewCell for displaying search results
+//MARK: - SearchResultCell Class
+//A simple UITableViewCell for displaying search results
 class SearchResultCell: UITableViewCell {
-    //Instance Variables
+    //Class Variables
     var parentVC: SearchTableViewController!
     
     //Outlets
@@ -123,20 +126,14 @@ class SearchResultCell: UITableViewCell {
             netChangeInPercentage: 0.0
         )
         
-        //Try to add this stock to the watchlist. If it already exists,
-        //then it won't be added again.
+        //Try to add this stock to the watchlist.
         WatchListManager.sharedInstance.addStockToWatchList(newStock, completion: { (stockWasAdded: Bool) in
-            //If the stock was added to the watchlist, let's add it to the local array also 
-            //to prevent lag while waiting on an update from the StockManager
-            if stockWasAdded {
-                if let presentingVC = self.parentVC.presentingViewController as? StocksTableViewController {
-                    presentingVC.stocks.append(newStock)
-                }
-            }
+            //Dismiss the search view controller
             self.parentVC.dismissViewControllerAnimated(false, completion: nil)
         })
     }
     
+    //Configure SearchResult cell with symbol and name
     func configureCellWithSearchResult(term: StockSearchResult) {
         symbolLabel.text = term.symbol
         nameLabel.text = term.name

@@ -9,6 +9,7 @@
 import Foundation
 
 class Stock: NSObject {
+    //Stock Properties
     var name: String
     var symbol: String
     var price: Double
