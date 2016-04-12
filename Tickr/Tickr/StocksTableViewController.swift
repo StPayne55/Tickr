@@ -191,8 +191,8 @@ extension StocksTableViewController: UITableViewDelegate, UITableViewDataSource 
             })
         });
         
-        moreRowAction.backgroundColor = Constants.tickrBlue
-        deleteRowAction.backgroundColor = Constants.tickrButtonRed
+        moreRowAction.backgroundColor = UIColor.tickrBlue()
+        deleteRowAction.backgroundColor = UIColor.tickrButtonRed()
         return [deleteRowAction, moreRowAction];
     }
     
@@ -315,23 +315,23 @@ class TickrCell: UITableViewCell {
         //Set the cell color to match it's stock's performance
         switch stock.netChange {
             case let x where x < 0.0:
-                self.contentView.backgroundColor = Constants.tickrRed //loss in value
+                self.contentView.backgroundColor = UIColor.tickrRed() //loss in value
             case let x where x > 0.0:
-                self.contentView.backgroundColor = Constants.tickrGreen //gain in value
+                self.contentView.backgroundColor = UIColor.tickrGreen() //gain in value
             default:
-                self.contentView.backgroundColor = Constants.tickrGray //no price action
+                self.contentView.backgroundColor = UIColor.tickrGray() //no price action
         }
         
         //Setup the labels to make them more legible
         symbolLabel.textColor = Constants.tickrFontColor
-        symbolLabel.font = Constants.tickrFont
+        symbolLabel.font = UIFont.tickrFontOfSize(20)
         symbolLabel.shadowColor = Constants.tickrLabelShadowColor
         symbolLabel.shadowOffset = Constants.tickrLabelShadowOffset
         
         //Setup the percentage button
         percentageButton.setTitleColor(Constants.tickrFontColor, forState: .Normal)
         percentageButton.setTitleShadowColor(Constants.tickrLabelShadowColor, forState: .Normal)
-        percentageButton.titleLabel?.font = Constants.tickrSubTextFont
+        percentageButton.titleLabel?.font =  UIFont.tickrSubTextFontOfSize(25)
     }
     
     

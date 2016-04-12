@@ -16,23 +16,17 @@ class TickrTests: XCTestCase {
     override func setUp() {
         super.setUp()
         //create test data for all tests to use
-        
-
     }
     
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
     }
-    
-    
-    
 }
 
 class StockManagerTests: TickrTests {
     var stocks = [Stock]()
     var manager = StockManager.sharedInstance
-    
     
     //MARK: - Parsing Tests
     func testParseJSON() {
@@ -116,7 +110,7 @@ class StockManagerTests: TickrTests {
         let mockNotification = MockNSNotificationCenter()
         manager.notificationCenter = mockNotification
     
-        manager.notififyListenersOfUpdates(manager.stockArray)
+        manager.notififyListenersOfUpdates()
         XCTAssertEqual(mockNotification.postCount, 1, "A notification should have been posted")
     }
     
@@ -140,93 +134,107 @@ class StocksTableViewControllerTests: XCTestCase {
     
     func testViewDidLoad() {
         stockVC.notificationCenter = mockNotification
-        stockVC.viewDidLoad()
+        stockVC.viewWillAppear(false)
         
-        XCTAssertEqual(mockNotification.observerCount, 1, "VC should be an observer for stock update notifications")
+        XCTAssertEqual(mockNotification.observerCount, 2, "VC should be an observer 2 notifications")
     }
     
     func testFetchStockUpdates() {
-        stockVC.stocks.append(TickrTestData.stocks[0])
         stockVC.fetchStockUpdates()
         
-        XCTAssertNotNil(stockVC.stockManager.session.configuration, "Config should've been set at this point")
+        XCTAssertNotNil(StockManager.sharedInstance.session.configuration, "Config should've been set at this point")
         
         //Defined in Constants.swift but we still want to make sure this is never less than 2
-        XCTAssert(Constants.kUpdateInterval >= 2, "Update interval shouldn't be less than 5 for performance reasons")
+        XCTAssert(Constants.kUpdateInterval >= 2, "Update interval shouldn't be less than 2 for performance reasons")
     }
     
     func testStocksWereUpdated() {
-        //This should trigger the 'stocksWereUpdated' function and
-        //inject our test data
-        stockVC.notificationCenter = mockNotification
+        //This simply updates the tableView
         let payload = [Constants.kNotificationStockPricesUpdated : TickrTestData.stocks]
         let fakeNotification = NSNotification(name: Constants.kNotificationStockPricesUpdated, object: nil, userInfo: payload)
         stockVC.stocksWereUpdated(fakeNotification)
         
-        //This function should've parsed the notification userInfo dict
-        //and added all of the testData stocks to it's stock array
-        XCTAssertEqual(stockVC.stocks.count, TickrTestData.stocks.count, "Expected the same number of stocks in both the test array, and parsed array")
+        //No assertions can really be made
     }
     
     //Mark: - Tableview Tests
     func testNumberOfRowsInTableView() {
-        stockVC.stocks = TickrTestData.stocks
-        stockVC.tableView.reloadData()
+        let exp = expectationWithDescription("stockAdded")
+        for stock in TickrTestData.stocks {
+            WatchListManager.sharedInstance.addStockToWatchList(stock, completion: { (stockAdded) in
+                self.stockVC.tableView.reloadData()
+                XCTAssertEqual(self.stockVC.tableView.numberOfRowsInSection(0), TickrTestData.stocks.count, "Expected 3 rows")
+            })
+        }
+        exp.fulfill()
         
-        XCTAssertEqual(stockVC.tableView.numberOfRowsInSection(0), TickrTestData.stocks.count, "Expected 3 rows")
+        waitForExpectationsWithTimeout(5.0) { e in
+            print(e?.debugDescription)
+            XCTFail("This somehow timed out")
+        }
     }
     
     func testCellForRowAtIndexPath() {
-        stockVC.stocks = TickrTestData.stocks
-        stockVC.tableView.reloadData()
-        let cell = stockVC.tableView(stockVC.tableView, cellForRowAtIndexPath: NSIndexPath(forRow: 0, inSection: 0)) as! TickrCell
+        let exp = expectationWithDescription("stockAdded")
+        for stock in TickrTestData.stocks {
+            WatchListManager.sharedInstance.addStockToWatchList(stock, completion: { (stockAdded) in
+                self.stockVC.tableView.reloadData()
+                let cell = self.stockVC.tableView(self.stockVC.tableView, cellForRowAtIndexPath: NSIndexPath(forRow: 0, inSection: 0)) as! TickrCell
+                XCTAssertNotNil(cell, "Expected cell to be initialized")
+            })
+        }
         
-        
-        XCTAssertNotNil(cell.parentVC, "Expected cell to have parentVC")
-    }
-    
-    func testDidSelectRow() {
-        stockVC.stocks = TickrTestData.stocks
-        stockVC.tableView.reloadData()
-        stockVC.tableView.selectRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0), animated: false, scrollPosition: UITableViewScrollPosition.None)
-        
-        //TODO: - Add assertions once feature is added
+        exp.fulfill()
+        waitForExpectationsWithTimeout(5.0) { e in
+            print(e?.debugDescription)
+            XCTFail("This somehow timed out")
+        }
     }
     
     
     //MARK: - TickrCell Tests
     func testConfigureCell() {
-        stockVC.stocks = TickrTestData.stocks
-        stockVC.tableView.reloadData()
-        let cells = stockVC.tableView.visibleCells as! [TickrCell]
-        
-        var i = 0
-        for cell in cells {
-            cell.configureCellWithStock(TickrTestData.stocks[i])
-            i += 1
+        let exp = expectationWithDescription("stockAdded")
+        for stock in TickrTestData.stocks {
+            WatchListManager.sharedInstance.addStockToWatchList(stock, completion: { (stockAdded) in
+                self.stockVC.tableView.reloadData()
+                let cells = self.stockVC.tableView.visibleCells as! [TickrCell]
+                
+                var i = 0
+                for cell in cells {
+                    cell.configureCellWithStock(TickrTestData.stocks[i])
+                    i += 1
+                }
+                
+                //check to make sure cells are the right color
+                //stock 1 has a positive price action
+                //stock 2 has a negative price action
+                //stock 3 has no change in price action
+                XCTAssertEqual(cells[0].contentView.backgroundColor, Constants.tickrGreen, "Cell should be green")
+                XCTAssertEqual(cells[1].contentView.backgroundColor, Constants.tickrRed, "Cell should be red")
+                XCTAssertEqual(cells[2].contentView.backgroundColor, Constants.tickrGray, "Cell should be gray")
+                
+                //check to make sure all labels are set
+                XCTAssertNotNil(cells[0].priceLabel.text, "Expected a price")
+                XCTAssertNotNil(cells[0].symbolLabel.text, "Expected a symbol")
+                XCTAssertNotNil(cells[0].nameLabel.text, "Expected a name")
+                XCTAssertNotNil(cells[0].percentageButton.titleLabel?.text, "Expected a percentage")
+                XCTAssertNotNil(cells[1].priceLabel.text, "Expected a price")
+                XCTAssertNotNil(cells[1].symbolLabel.text, "Expected a symbol")
+                XCTAssertNotNil(cells[1].nameLabel.text, "Expected a name")
+                XCTAssertNotNil(cells[1].percentageButton.titleLabel?.text, "Expected a percentage")
+                XCTAssertNotNil(cells[2].priceLabel.text, "Expected a price")
+                XCTAssertNotNil(cells[2].symbolLabel.text, "Expected a symbol")
+                XCTAssertNotNil(cells[2].nameLabel.text, "Expected a name")
+                XCTAssertNotNil(cells[2].percentageButton.titleLabel?.text, "Expected a percentage")
+            })
+            exp.fulfill()
         }
-        
-        //check to make sure cells are the right color
-        //stock 1 has a positive price action
-        //stock 2 has a negative price action
-        //stock 3 has no change in price action
-        XCTAssertEqual(cells[0].contentView.backgroundColor, Constants.tickrGreen, "Cell should be green")
-        XCTAssertEqual(cells[1].contentView.backgroundColor, Constants.tickrRed, "Cell should be red")
-        XCTAssertEqual(cells[2].contentView.backgroundColor, Constants.tickrGray, "Cell should be gray")
-        
-        //check to make sure all labels are set
-        XCTAssertNotNil(cells[0].priceLabel.text, "Expected a price")
-        XCTAssertNotNil(cells[0].symbolLabel.text, "Expected a symbol")
-        XCTAssertNotNil(cells[0].nameLabel.text, "Expected a name")
-        XCTAssertNotNil(cells[0].percentageButton.titleLabel?.text, "Expected a percentage")
-        XCTAssertNotNil(cells[1].priceLabel.text, "Expected a price")
-        XCTAssertNotNil(cells[1].symbolLabel.text, "Expected a symbol")
-        XCTAssertNotNil(cells[1].nameLabel.text, "Expected a name")
-        XCTAssertNotNil(cells[1].percentageButton.titleLabel?.text, "Expected a percentage")
-        XCTAssertNotNil(cells[2].priceLabel.text, "Expected a price")
-        XCTAssertNotNil(cells[2].symbolLabel.text, "Expected a symbol")
-        XCTAssertNotNil(cells[2].nameLabel.text, "Expected a name")
-        XCTAssertNotNil(cells[2].percentageButton.titleLabel?.text, "Expected a percentage")
+
+        waitForExpectationsWithTimeout(5.0) { e in
+            print(e?.debugDescription)
+            XCTFail("This somehow timed out")
+        }
     }
 }
 

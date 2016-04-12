@@ -36,11 +36,11 @@ class StockManager {
         This will take a search term and try to look up stock symbols or company names based on that term
         - parameter term: A string to use as a search query
      */
-    class func fetchStocksFromSearchTerm(term term: String, completion:(stockInfoArray: [StockSearchResult]) -> ()) {
+    class func fetchStocksFromSearchTerm(searchQuery: String, completion:(stockInfoArray: [StockSearchResult]) -> ()) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
             
             //sanitize string
-            let query = term.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLFragmentAllowedCharacterSet())
+            let query = searchQuery.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLFragmentAllowedCharacterSet())
             let url = NSURL(string: "\(Constants.searchURL)\(query!)")
             
             //Create NSURLRequest and NSURLSession
@@ -154,7 +154,6 @@ class StockManager {
                 return tempArray
             }
         }
-        
         return nil
     }
     

@@ -38,7 +38,7 @@ class SearchTableViewController: UIViewController {
     func searchYahooFinanceWithString(searchText: String) {
         
         //Search for stocks using the user-entered text
-        StockManager.fetchStocksFromSearchTerm(term: searchText) { (stockInfoArray) -> () in
+        StockManager.fetchStocksFromSearchTerm(searchText) { (stockInfoArray) -> () in
             dispatch_async(dispatch_get_main_queue(), {
                 //Update the tableView with the search results
                 self.searchResults = stockInfoArray
