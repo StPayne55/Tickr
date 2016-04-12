@@ -10,6 +10,7 @@ import UIKit
 
 class StocksTableViewController: UIViewController {
     //Class Variables
+    var priceAlert: UIAlertController?
     lazy var notificationCenter: NSNotificationCenter = {
         return NSNotificationCenter.defaultCenter()
     }()
@@ -33,7 +34,7 @@ class StocksTableViewController: UIViewController {
         //Listen for any updates from the Stock Manager
         notificationCenter.addObserver(
             self,
-            selector: #selector(StocksTableViewController.stocksWereUpdated(_:)),
+            selector: #selector(stocksWereUpdated),
             name: Constants.kNotificationStockPricesUpdated,
             object: nil
         )
@@ -60,13 +61,13 @@ class StocksTableViewController: UIViewController {
     
     //MARK: - Stock Updates
     /*
-        This will fetch current stock prices on a set interval.
-        This interval can be changed in Constants.swift.
+        This will tell the StockManager to fetch current stock prices 
+        on a set interval. This interval can be changed in Constants.swift.
      
         Stocks are added to the WatchList stock array. StockManager then
         makes a query on the stocks in that array. Those stock updates 
-        are parsed, and then sent back here using a NSNotification. 
-        From there, they're added to the local array and displayed.
+        are parsed, and then a notification is sent here telling this VC to 
+        reload the tableView.
      */
     func fetchStockUpdates() {
         
@@ -88,11 +89,9 @@ class StocksTableViewController: UIViewController {
     
     /*
         This will be called when a stock update notification is received
-     
-        - parameter notification: a notification containing a userInfo dictionary that 
-                                  contains data on the stocks that were updated.
+        and will update the tableView with new data.
      */
-    func stocksWereUpdated(notification: NSNotification) {
+    func stocksWereUpdated() {
         
         //reload the tableView to reflect the updates
         tableView.reloadData()
@@ -165,35 +164,38 @@ extension StocksTableViewController: UITableViewDelegate, UITableViewDataSource 
         let moreRowAction = UITableViewRowAction(
             style: UITableViewRowActionStyle.Default,
             title: "Price\nAlerts",
-            handler:{action, indexpath in
-                
-            //Display alert with field and options
-            self.displayActionSheetForAlerts(WatchListManager.sharedInstance.stocks[indexPath.row])
-        });
-        
+            handler: moreRowActionHandler)
         
         //Will delete a stock from the watch list and from the local array
         let deleteRowAction = UITableViewRowAction(
-            style: UITableViewRowActionStyle.Default,
+            style: UITableViewRowActionStyle.Destructive,
             title: "Delete",
-            handler:{action, indexpath in
-                
-            //Remove stock watchlist and local array if successful
-            let stockToDelete = WatchListManager.sharedInstance.stocks[indexPath.row]
-            WatchListManager.sharedInstance.removeStockFromWatchList(stockToDelete, completion: { (didDeleteStock) in
-                
-                //If stock was removed from watchlist, remove it from local array also
-                if didDeleteStock {
-                    //Delete the row corresponding to that stock
-                    tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
-                    StockManager.sharedInstance.shouldCancelUpdate = false
-                }
-            })
-        });
+            handler: deleteRowActionHandler )
         
         moreRowAction.backgroundColor = UIColor.tickrBlue()
         deleteRowAction.backgroundColor = UIColor.tickrButtonRed()
         return [deleteRowAction, moreRowAction];
+    }
+    
+    //Handles selection of price alert action
+    func moreRowActionHandler(rowAction: UITableViewRowAction, indexPath: NSIndexPath) {
+        //Display alert with field and options
+        self.displayActionSheetForAlerts(WatchListManager.sharedInstance.stocks[indexPath.row])
+    }
+    
+    //Handles selection of delete action
+    func deleteRowActionHandler(rowAction: UITableViewRowAction, indexPath: NSIndexPath) {
+        //Remove stock watchlist and local array if successful
+        let stockToDelete = WatchListManager.sharedInstance.stocks[indexPath.row]
+        WatchListManager.sharedInstance.removeStockFromWatchList(stockToDelete, completion: { (didDeleteStock) in
+            
+            //If stock was removed from watchlist, remove it from local array also
+            if didDeleteStock {
+                //Delete the row corresponding to that stock
+                self.tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+                StockManager.sharedInstance.shouldCancelUpdate = false
+            }
+        })
     }
     
     //Will display an alertView that will let the user enter a price alert target
@@ -202,7 +204,7 @@ extension StocksTableViewController: UITableViewDelegate, UITableViewDataSource 
         var priceTargetTextField: UITextField?
         
         //Setup alert sheet
-        let alert = UIAlertController(
+        priceAlert = UIAlertController(
             title: "Price Target",
             message: "Once this stock reaches your price target, you'll be alerted.\nCurrent Price: $\(stock.price.roundToPlaces(2))",
             preferredStyle: .Alert
@@ -236,18 +238,18 @@ extension StocksTableViewController: UITableViewDelegate, UITableViewDataSource 
         })
         
         //Add textfield to allow the user to enter a price target
-        alert.addTextFieldWithConfigurationHandler({ (textField) -> Void in
+        priceAlert?.addTextFieldWithConfigurationHandler({ (textField) -> Void in
             priceTargetTextField = textField
             priceTargetTextField?.placeholder = "Enter a price target"
             priceTargetTextField?.keyboardType = .DecimalPad
         })
         
         //Add the actions to the alert
-        alert.addAction(cancelAction)
-        alert.addAction(alertAction)
+        priceAlert?.addAction(cancelAction)
+        priceAlert?.addAction(alertAction)
         
         //Present the alert
-        presentViewController(alert, animated: true, completion: nil)
+        presentViewController(priceAlert!, animated: true, completion: nil)
     }
 }
 

@@ -119,7 +119,7 @@ class StockManagerTests: TickrTests {
 
 //MARK: - StocksTableViewControllerTests
 class StocksTableViewControllerTests: XCTestCase {
-    var stockVC: StocksTableViewController!
+    var stockVC = StocksTableViewController()
     let mockNotification = MockNSNotificationCenter()
 
     override func setUp() {
@@ -129,7 +129,7 @@ class StocksTableViewControllerTests: XCTestCase {
         )
         stockVC = storyboard.instantiateViewControllerWithIdentifier("stockTableViewController") as! StocksTableViewController
         UIApplication.sharedApplication().keyWindow!.rootViewController = stockVC
-        let _ = stockVC.view
+       let _ = stockVC.view
     }
     
     func testViewDidLoad() {
@@ -160,81 +160,118 @@ class StocksTableViewControllerTests: XCTestCase {
     //Mark: - Tableview Tests
     func testNumberOfRowsInTableView() {
         let exp = expectationWithDescription("stockAdded")
-        for stock in TickrTestData.stocks {
-            WatchListManager.sharedInstance.addStockToWatchList(stock, completion: { (stockAdded) in
-                self.stockVC.tableView.reloadData()
-                XCTAssertEqual(self.stockVC.tableView.numberOfRowsInSection(0), TickrTestData.stocks.count, "Expected 3 rows")
-            })
-        }
-        exp.fulfill()
-        
-        waitForExpectationsWithTimeout(5.0) { e in
-            print(e?.debugDescription)
-            XCTFail("This somehow timed out")
-        }
+        let stock = TickrTestData.stocks[0]
+        WatchListManager.sharedInstance.addStockToWatchList(stock, completion: { (stockAdded) in
+            self.stockVC.tableView.reloadData()
+            XCTAssertEqual(self.stockVC.tableView.numberOfRowsInSection(0), 1, "Expected 1 row")
+            exp.fulfill()
+        })
+        self.waitForExpectationsWithTimeout(5.0, handler: { error in
+            print(error)
+        })
     }
     
     func testCellForRowAtIndexPath() {
-        let exp = expectationWithDescription("stockAdded")
-        for stock in TickrTestData.stocks {
-            WatchListManager.sharedInstance.addStockToWatchList(stock, completion: { (stockAdded) in
-                self.stockVC.tableView.reloadData()
-                let cell = self.stockVC.tableView(self.stockVC.tableView, cellForRowAtIndexPath: NSIndexPath(forRow: 0, inSection: 0)) as! TickrCell
-                XCTAssertNotNil(cell, "Expected cell to be initialized")
-            })
-        }
+        weak var exp = expectationWithDescription("stockAdded")
+        let stock = TickrTestData.stocks[0]
+        WatchListManager.sharedInstance.addStockToWatchList(stock, completion: { (stockAdded) in
+            self.stockVC.tableView.reloadData()
+            let cell = self.stockVC.tableView(self.stockVC.tableView, cellForRowAtIndexPath: NSIndexPath(forRow: 0, inSection: 0)) as! TickrCell
+            XCTAssertNotNil(cell, "Expected cell to be initialized")
+            exp?.fulfill()
+            exp = nil
+        })
         
-        exp.fulfill()
-        waitForExpectationsWithTimeout(5.0) { e in
-            print(e?.debugDescription)
-            XCTFail("This somehow timed out")
-        }
+        self.waitForExpectationsWithTimeout(5.0, handler: { error in
+            print(error)
+        })
+    }
+    
+    func testEditActionsForRowAtIndexPath() {
+        weak var exp = expectationWithDescription("stockAdded")
+        let stock = TickrTestData.stocks[0]
+        WatchListManager.sharedInstance.addStockToWatchList(stock, completion: { (stockAdded) in
+            let actions = self.stockVC.tableView(self.stockVC.tableView, editActionsForRowAtIndexPath: NSIndexPath(forRow: 0, inSection: 0))
+            
+            XCTAssertEqual(actions?.count, 2, "There should be a delete and Price Alerts Action")
+            XCTAssertEqual(actions?[0].style, .Destructive, "This should be a destructive delete action")
+            XCTAssertEqual(actions?[1].style, .Default, "This should be a default price alert action")
+            exp?.fulfill()
+            exp = nil
+        })
+        
+        self.waitForExpectationsWithTimeout(5.0, handler: { error in
+            print(error)
+        })
+    }
+    
+    func testDeleteActionHandler() {
+        weak var exp = expectationWithDescription("stockAdded")
+        let stock = TickrTestData.stocks[0]
+        WatchListManager.sharedInstance.addStockToWatchList(stock, completion: { _ in
+            let actions = self.stockVC.tableView(self.stockVC.tableView, editActionsForRowAtIndexPath: NSIndexPath(forRow: 0, inSection: 0))
+            self.stockVC.deleteRowActionHandler(actions![1], indexPath: NSIndexPath(forRow: 0, inSection: 0))
+            
+            XCTAssertFalse(StockManager.sharedInstance.shouldCancelUpdate, "Expected this to be false")
+            XCTAssertEqual(self.stockVC.tableView.numberOfRowsInSection(0), 0, "The only row should've been deleted")
+            exp?.fulfill()
+            exp = nil
+        })
+        
+        self.waitForExpectationsWithTimeout(5.0, handler: { error in
+            print(error)
+        })
+    }
+    
+    func testDisplayActionSheetForAlerts() {
+        let stock = TickrTestData.stocks[0]
+        stockVC.displayActionSheetForAlerts(stock)
+        
+        XCTAssertEqual(stockVC.priceAlert?.actions.count, 2, "Expected 2 actions on this alert")
+        XCTAssertEqual(stockVC.priceAlert?.actions[0].style, .Destructive, "Expected destructive-style action")
+        XCTAssertEqual(stockVC.priceAlert?.actions[1].style, .Default, "Expected default-style action")
+        XCTAssertEqual(stockVC.priceAlert?.textFields?.count, 1, "Alert should have a textfield")
+    }
+    
+    //MARK: - SearchBar Delegate Tests
+    func testSearchBarShouldBeginEditing() {
+        let searchBar = stockVC.searchBar
+        let value = stockVC.searchBarShouldBeginEditing(searchBar)
+        
+        XCTAssertTrue(value, "This should return true always")
     }
     
     
     //MARK: - TickrCell Tests
     func testConfigureCell() {
-        let exp = expectationWithDescription("stockAdded")
-        for stock in TickrTestData.stocks {
-            WatchListManager.sharedInstance.addStockToWatchList(stock, completion: { (stockAdded) in
-                self.stockVC.tableView.reloadData()
-                let cells = self.stockVC.tableView.visibleCells as! [TickrCell]
-                
-                var i = 0
-                for cell in cells {
-                    cell.configureCellWithStock(TickrTestData.stocks[i])
-                    i += 1
-                }
-                
-                //check to make sure cells are the right color
-                //stock 1 has a positive price action
-                //stock 2 has a negative price action
-                //stock 3 has no change in price action
-                XCTAssertEqual(cells[0].contentView.backgroundColor, Constants.tickrGreen, "Cell should be green")
-                XCTAssertEqual(cells[1].contentView.backgroundColor, Constants.tickrRed, "Cell should be red")
-                XCTAssertEqual(cells[2].contentView.backgroundColor, Constants.tickrGray, "Cell should be gray")
-                
-                //check to make sure all labels are set
-                XCTAssertNotNil(cells[0].priceLabel.text, "Expected a price")
-                XCTAssertNotNil(cells[0].symbolLabel.text, "Expected a symbol")
-                XCTAssertNotNil(cells[0].nameLabel.text, "Expected a name")
-                XCTAssertNotNil(cells[0].percentageButton.titleLabel?.text, "Expected a percentage")
-                XCTAssertNotNil(cells[1].priceLabel.text, "Expected a price")
-                XCTAssertNotNil(cells[1].symbolLabel.text, "Expected a symbol")
-                XCTAssertNotNil(cells[1].nameLabel.text, "Expected a name")
-                XCTAssertNotNil(cells[1].percentageButton.titleLabel?.text, "Expected a percentage")
-                XCTAssertNotNil(cells[2].priceLabel.text, "Expected a price")
-                XCTAssertNotNil(cells[2].symbolLabel.text, "Expected a symbol")
-                XCTAssertNotNil(cells[2].nameLabel.text, "Expected a name")
-                XCTAssertNotNil(cells[2].percentageButton.titleLabel?.text, "Expected a percentage")
-            })
-            exp.fulfill()
-        }
+        let exp = expectationWithDescription("stockWasAdded")
+        let stock = TickrTestData.stocks[0]
+        
+        WatchListManager.sharedInstance.addStockToWatchList(stock, completion: { (stockAdded) in
+            self.stockVC.tableView.reloadData()
+            let cells = self.stockVC.tableView.visibleCells as! [TickrCell]
+            
+            var i = 0
+            for cell in cells {
+                cell.configureCellWithStock(TickrTestData.stocks[i])
+                i += 1
+            }
+            
+            //check to make sure cells are the right color
+            //stock has a positive price action
+            XCTAssertEqual(cells[0].contentView.backgroundColor, UIColor.tickrGreen(), "Cell should be green")
 
-        waitForExpectationsWithTimeout(5.0) { e in
-            print(e?.debugDescription)
-            XCTFail("This somehow timed out")
-        }
+            //check to make sure all labels are set
+            XCTAssertNotNil(cells[0].priceLabel.text, "Expected a price")
+            XCTAssertNotNil(cells[0].symbolLabel.text, "Expected a symbol")
+            XCTAssertNotNil(cells[0].nameLabel.text, "Expected a name")
+            XCTAssertNotNil(cells[0].percentageButton.titleLabel?.text, "Expected a percentage")
+            exp.fulfill()
+        })
+        
+        self.waitForExpectationsWithTimeout(5.0, handler: { error in
+            print(error.debugDescription)
+        })
     }
 }
 
